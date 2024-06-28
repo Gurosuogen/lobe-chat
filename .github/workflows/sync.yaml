@@ -16,6 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     if: contains(github.event.head_commit.message, 'release')
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
       - name: Sync fork with upstream
         uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
         with:
@@ -24,3 +29,9 @@ jobs:
           target_sync_branch: main
           target_repo_token: ${{ secrets.GITHUB_TOKEN }} # automatically generated, no need to set\
           test_mode: false
+
+      - name: Restore custom workflows
+        run: |
+          git checkout origin/action -- .github/workflows/
+          git commit -m "Restore custom workflows" || echo "No changes to commit"
+          git push origin main
